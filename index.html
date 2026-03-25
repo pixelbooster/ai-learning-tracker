@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Phase 1 — AI Research Foundations Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0B0C0F;--bg1:#101215;--bg2:#17191E;--bg3:#1E2127;
+  --bdr:rgba(255,255,255,0.06);--bdr2:rgba(255,255,255,0.11);--bdr3:rgba(255,255,255,0.18);
+  --tx:#EDECEA;--tx2:#8C8A86;--tx3:#4E4C49;
+  --gr:#0FD49A;--gr-d:rgba(15,212,154,0.12);
+  --pu:#9D8FFF;--pu-d:rgba(157,143,255,0.12);
+  --am:#F5A623;--am-d:rgba(245,166,35,0.12);
+  --re:#F56565;
+  --r:12px;--rs:8px;--rp:100px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;padding:52px 20px 100px;line-height:1.6;-webkit-font-smoothing:antialiased}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");opacity:.022;pointer-events:none;z-index:9998}
+.wrap{max-width:960px;margin:0 auto}
+
+/* Header */
+.hdr{margin-bottom:40px}
+.phase-tag{display:inline-flex;align-items:center;gap:5px;background:var(--gr-d);border:.5px solid rgba(15,212,154,.3);color:var(--gr);font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;padding:4px 11px;border-radius:var(--rp);margin-bottom:10px}
+.phase-tag::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--gr);animation:pulse 2s ease infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+h1{font-family:'Syne',sans-serif;font-size:clamp(26px,4vw,40px);font-weight:800;letter-spacing:-.02em;line-height:1.1}
+h1 span{color:var(--gr)}
+.hdr-sub{font-size:14px;color:var(--tx2);margin-top:8px;display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.domain-pill{display:inline-flex;align-items:center;gap:6px;background:var(--pu-d);border:.5px solid rgba(157,143,255,.25);color:var(--pu);font-size:12px;font-weight:500;padding:3px 10px;border-radius:var(--rp)}
+.domain-pill.hidden{display:none}
+
+/* Carryover toast */
+.carryover-toast{
+  display:none;align-items:center;gap:8px;
+  background:var(--gr-d);border:.5px solid rgba(15,212,154,.3);
+  border-radius:var(--rs);padding:10px 14px;margin-bottom:16px;
+  font-size:13px;color:var(--gr);animation:slideIn .3s ease;
+}
+.carryover-toast.show{display:flex}
+@keyframes slideIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.carryover-toast .ct-icon{font-size:15px;flex-shrink:0}
+.carryover-toast b{font-weight:500}
+
+/* Setup */
+.setup{background:var(--bg1);border:.5px solid var(--bdr2);border-radius:var(--r);padding:22px 24px;margin-bottom:16px;display:flex;flex-wrap:wrap;gap:24px}
+.setup-col{flex:1;min-width:200px}
+.setup-lbl{font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.setup-lbl::before{content:'';width:14px;height:1px;background:var(--bdr2)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{padding:6px 14px;border-radius:var(--rp);border:.5px solid var(--bdr2);background:var(--bg2);color:var(--tx2);font-size:12px;cursor:pointer;user-select:none;transition:all .18s}
+.chip:hover{border-color:var(--bdr3);color:var(--tx)}
+.chip.active-d{background:var(--pu-d);border-color:rgba(157,143,255,.4);color:var(--pu);font-weight:500}
+.chip.active-h{background:var(--gr-d);border-color:rgba(15,212,154,.4);color:var(--gr);font-weight:500}
+.setup-div{width:.5px;background:var(--bdr);align-self:stretch;margin:0 4px}
+@media(max-width:600px){.setup-div{display:none}}
+.domain-desc{
+  margin-top:14px;padding:12px 16px;
+  background:var(--bg2);border:.5px solid var(--bdr2);
+  border-left:2px solid var(--pu);
+  border-radius:0 var(--rs) var(--rs) 0;
+  font-size:13px;color:var(--tx2);line-height:1.65;
+  display:none;animation:descIn .25s ease;
+}
+.domain-desc.show{display:block}
+@keyframes descIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.domain-desc .desc-label{
+  font-size:10px;font-weight:500;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--pu);margin-bottom:4px;
+}
+
+/* Stats */
+.stats-area{display:grid;grid-template-columns:auto 1fr;gap:16px;margin-bottom:28px;align-items:center}
+@media(max-width:580px){.stats-area{grid-template-columns:1fr}}
+.ring-wrap{display:flex;align-items:center;justify-content:center;position:relative;width:120px;height:120px;flex-shrink:0}
+.ring-svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:var(--bg3);stroke-width:6}
+.ring-fill{fill:none;stroke:var(--gr);stroke-width:6;stroke-linecap:round;transition:stroke-dashoffset .5s cubic-bezier(.4,0,.2,1)}
+.ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring-pct{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--tx);line-height:1}
+.ring-done{font-size:10px;color:var(--tx3);margin-top:2px}
+.scards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:720px){.scards{grid-template-columns:repeat(2,1fr)}}
+.sc{background:var(--bg1);border:.5px solid var(--bdr);border-radius:var(--rs);padding:14px 16px;transition:border-color .2s}
+.sc:hover{border-color:var(--bdr2)}
+.sv{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--tx);line-height:1}
+.sl{font-size:11px;color:var(--tx3);margin-top:4px}
+.sc-sub{font-size:11px;color:var(--gr);margin-top:2px;font-weight:500}
+
+/* Summary pills */
+.sum-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:32px;align-items:center}
+.sp{font-size:12px;color:var(--tx3);background:var(--bg1);border:.5px solid var(--bdr);border-radius:var(--rp);padding:4px 12px}
+.sp b{font-weight:500}
+.sp.g b{color:var(--gr)}.sp.p b{color:var(--pu)}.sp.a b{color:var(--am)}
+
+/* Legend */
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px;padding:12px 16px;background:var(--bg1);border:.5px solid var(--bdr);border-radius:var(--rs)}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--tx2)}
+.legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.ld-common{background:var(--gr)}
+.ld-new{background:var(--pu)}
+
+/* Module */
+.module{margin-bottom:48px;animation:fadeUp .4s ease both}
+.module:nth-child(1){animation-delay:.05s}.module:nth-child(2){animation-delay:.1s}.module:nth-child(3){animation-delay:.15s}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes flashIn{from{opacity:.5}to{opacity:1}}
+.domain-flash{animation:flashIn .35s ease}
+.mod-hdr{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;padding-bottom:14px;border-bottom:.5px solid var(--bdr)}
+.mod-num{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.m1 .mod-num{color:var(--gr)}.m2 .mod-num{color:var(--pu)}.m3 .mod-num{color:var(--am)}
+.mod-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--tx)}
+.mod-badge{font-size:11px;font-weight:500;padding:3px 10px;border-radius:var(--rp);border:.5px solid}
+.m1 .mod-badge{background:var(--gr-d);border-color:rgba(15,212,154,.3);color:var(--gr)}
+.m2 .mod-badge{background:var(--pu-d);border-color:rgba(157,143,255,.3);color:var(--pu)}
+.m3 .mod-badge{background:var(--am-d);border-color:rgba(245,166,35,.3);color:var(--am)}
+.mod-pace{margin-left:auto;font-size:12px;color:var(--tx3)}
+.mod-prog{display:flex;align-items:center;gap:10px;width:100%;margin-top:4px}
+.mod-prog-track{flex:1;height:2px;background:var(--bg3);border-radius:var(--rp);overflow:hidden}
+.mod-prog-fill{height:100%;border-radius:var(--rp);transition:width .4s ease}
+.m1 .mod-prog-fill{background:var(--gr)}.m2 .mod-prog-fill{background:var(--pu)}.m3 .mod-prog-fill{background:var(--am)}
+.mod-prog-txt{font-size:11px;color:var(--tx3);white-space:nowrap;min-width:60px;text-align:right}
+
+/* Week cards */
+.week-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px;margin-bottom:16px}
+.wcard{background:var(--bg1);border:.5px solid var(--bdr);border-radius:var(--rs);padding:14px 15px;cursor:pointer;user-select:none;transition:background .15s,border-color .15s,transform .12s;position:relative}
+.wcard::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px;opacity:0;transition:opacity .2s}
+.wcard.is-common::before{background:var(--gr);opacity:.6}
+.wcard:hover{background:var(--bg2);border-color:var(--bdr2);transform:translateY(-1px)}
+.wcard:active{transform:scale(.98)}
+.wcard.done{background:rgba(15,212,154,.07);border-color:rgba(15,212,154,.25)}
+.m2 .wcard.done{background:rgba(157,143,255,.07);border-color:rgba(157,143,255,.25)}
+.m3 .wcard.done{background:rgba(245,166,35,.07);border-color:rgba(245,166,35,.25)}
+.wcard.partial{border-color:rgba(245,166,35,.3)}
+.wcard-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.wcard-week{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--tx3)}
+.wcard-check{width:18px;height:18px;border-radius:5px;border:.5px solid var(--bdr2);display:flex;align-items:center;justify-content:center;font-size:9px;color:transparent;transition:all .18s;flex-shrink:0}
+.wcard.done .wcard-check{background:var(--gr);border-color:var(--gr);color:#000;font-size:10px}
+.m2 .wcard.done .wcard-check{background:var(--pu);border-color:var(--pu);color:#fff}
+.m3 .wcard.done .wcard-check{background:var(--am);border-color:var(--am);color:#000}
+.wcard-topics{list-style:none}
+.wcard-topics li{font-size:12px;color:var(--tx2);line-height:1.4;padding:2px 0;border-bottom:.5px solid var(--bdr);display:flex;align-items:flex-start;gap:5px}
+.wcard-topics li:last-child{border-bottom:none}
+.wcard-topics li::before{content:'·';color:var(--tx3);flex-shrink:0;margin-top:1px}
+.wcard-topics li strong{font-weight:500;color:var(--tx);font-size:12px}
+.wcard-topics li span{font-size:11px;color:var(--tx3);display:block;margin-top:1px}
+.wcard.single .wcard-title{font-size:13px;font-weight:500;color:var(--tx);line-height:1.3;margin-bottom:3px}
+.wcard.single .wcard-sub{font-size:11px;color:var(--tx2);line-height:1.4}
+.wcard.single .wcard-topics li{border-bottom:none;padding:0}
+.wcard.single .wcard-topics li::before{display:none}
+
+/* common tag on single card */
+.common-tag{font-size:9px;letter-spacing:.04em;text-transform:uppercase;color:var(--gr);opacity:.7;margin-top:5px}
+
+/* Milestone */
+.milestone{display:flex;gap:12px;align-items:flex-start;background:var(--bg1);border:.5px solid var(--bdr2);border-radius:var(--rs);padding:14px 16px;margin-bottom:16px;font-size:13px;color:var(--tx2);line-height:1.6}
+.milestone-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.milestone strong{color:var(--tx);font-weight:500}
+
+/* Guide */
+.guide-btn{width:100%;display:flex;align-items:center;gap:10px;background:var(--bg1);border:.5px solid var(--bdr);border-radius:var(--rs);padding:12px 16px;font-size:13px;color:var(--tx2);cursor:pointer;text-align:left;transition:background .15s,border-color .15s;margin-bottom:1px;font-family:'DM Sans',sans-serif}
+.guide-btn:hover{background:var(--bg2);border-color:var(--bdr2);color:var(--tx)}
+.guide-btn .g-arrow{margin-left:auto;font-size:11px;transition:transform .22s;opacity:.5}
+.guide-btn.open{border-radius:var(--rs) var(--rs) 0 0;border-color:var(--bdr2)}
+.guide-btn.open .g-arrow{transform:rotate(180deg)}
+.guide-panel{display:none;background:var(--bg1);border:.5px solid var(--bdr2);border-top:none;border-radius:0 0 var(--rs) var(--rs);padding:0 24px}
+.guide-panel.open{display:block}
+.gsec{padding:20px 0;border-bottom:.5px solid var(--bdr)}
+.gsec:last-child{border-bottom:none}
+.gsec-label{font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);margin-bottom:5px}
+.gsec-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--tx);margin-bottom:8px}
+.gsec-body{font-size:13px;color:var(--tx2);line-height:1.75}
+.gsec-body p{margin-bottom:8px}.gsec-body p:last-child{margin-bottom:0}
+.gsec-body a{color:var(--gr);text-decoration:none}.gsec-body a:hover{text-decoration:underline}
+.gsec-body code{font-family:monospace;font-size:12px;background:var(--bg3);padding:1px 5px;border-radius:4px;color:var(--tx)}
+.gsec-body strong{color:var(--tx);font-weight:500}
+.m2 .gsec-body a{color:var(--pu)}.m3 .gsec-body a{color:var(--am)}
+
+/* Resources */
+.sec-card{background:var(--bg1);border:.5px solid var(--bdr);border-radius:var(--r);padding:24px 26px;margin-bottom:16px}
+.sec-card h2{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--tx);margin-bottom:18px;letter-spacing:-.01em}
+.res-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
+.ri{background:var(--bg2);border:.5px solid var(--bdr);border-radius:var(--rs);padding:12px 14px;transition:border-color .15s}
+.ri:hover{border-color:var(--bdr2)}
+.ri-top{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.ri-topic{font-size:11px;font-weight:500;color:var(--tx3);text-transform:uppercase;letter-spacing:.05em}
+.free{font-size:10px;font-weight:500;padding:2px 7px;border-radius:var(--rp);background:var(--gr-d);color:var(--gr)}
+.ri-name{font-size:13px;font-weight:500;color:var(--tx);margin-bottom:3px}
+.ri-link{font-size:12px;color:var(--tx3);text-decoration:none}
+.ri-link:hover{color:var(--gr)}
+
+/* Rules */
+.rules-list{list-style:none;display:flex;flex-direction:column;gap:10px}
+.rules-list li{display:flex;gap:12px;align-items:flex-start;font-size:13px;color:var(--tx2);line-height:1.6}
+.rn{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--tx3);background:var(--bg3);border:.5px solid var(--bdr2);border-radius:5px;width:22px;height:22px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.rules-list li strong{color:var(--tx);font-weight:500}
+.reset-btn{margin-top:20px;padding:9px 20px;border-radius:var(--rs);border:.5px solid var(--bdr2);background:transparent;color:var(--tx3);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;transition:all .15s}
+.reset-btn:hover{background:rgba(245,101,101,.08);border-color:rgba(245,101,101,.3);color:var(--re)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hdr">
+  <div class="phase-tag">Phase 1 · Foundation</div>
+  <h1 id="main-title">AI <span>Foundations</span></h1>
+  <div class="hdr-sub">
+    <span id="hdr-sub-text">Python · Linear Algebra · Probability & Statistics</span>
+    <span class="domain-pill hidden" id="domain-pill"></span>
+  </div>
+</div>
+
+<!-- Setup -->
+<div class="setup">
+  <div class="setup-col">
+    <div class="setup-lbl">Focus area</div>
+    <div class="chips" id="domain-chips">
+      <span class="chip" data-d="AI General">AI General</span>
+      <span class="chip" data-d="Machine Learning">Machine Learning</span>
+      <span class="chip" data-d="Deep Learning">Deep Learning</span>
+      <span class="chip" data-d="NLP">NLP</span>
+      <span class="chip" data-d="Computer Vision">Computer Vision</span>
+      <span class="chip" data-d="Reinforcement Learning">Reinforcement Learning</span>
+      <span class="chip" data-d="Data Science">Data Science</span>
+    </div>
+  </div>
+  <div class="setup-div"></div>
+  <div class="setup-col">
+    <div class="setup-lbl">Hours per week</div>
+    <div class="chips" id="hours-chips">
+      <span class="chip" data-h="2">2 hrs</span>
+      <span class="chip" data-h="4">4 hrs</span>
+      <span class="chip" data-h="6">6 hrs</span>
+      <span class="chip" data-h="8">8 hrs</span>
+      <span class="chip" data-h="10">10 hrs</span>
+      <span class="chip" data-h="12">12 hrs</span>
+      <span class="chip" data-h="15">15+ hrs</span>
+    </div>
+  </div>
+</div>
+
+<!-- Domain description -->
+<div class="domain-desc" id="domain-desc">
+  <div class="desc-label" id="desc-label"></div>
+  <span id="desc-text"></span>
+</div>
+
+<!-- Carryover toast -->
+<div class="carryover-toast" id="carryover-toast">
+  <span class="ct-icon">✦</span>
+  <span id="carryover-msg"></span>
+</div>
+
+<!-- Stats -->
+<div class="stats-area">
+  <div class="ring-wrap">
+    <svg class="ring-svg" viewBox="0 0 120 120">
+      <circle class="ring-bg" cx="60" cy="60" r="50"/>
+      <circle class="ring-fill" cx="60" cy="60" r="50" id="ring" stroke-dasharray="314" stroke-dashoffset="314"/>
+    </svg>
+    <div class="ring-text">
+      <div class="ring-pct" id="r-pct">0%</div>
+      <div class="ring-done" id="r-done">0 done</div>
+    </div>
+  </div>
+  <div>
+    <div class="scards">
+      <div class="sc"><div class="sv" id="s-weeks">—</div><div class="sl">weeks at your pace</div></div>
+      <div class="sc"><div class="sv" id="s-hrs">0 hrs</div><div class="sl">hours invested</div></div>
+      <div class="sc"><div class="sv" id="s-left">—</div><div class="sl">hours remaining</div></div>
+      <div class="sc"><div class="sv" id="s-finish" style="font-size:18px">—</div><div class="sl" id="s-finish-lbl">est. finish date</div><div class="sc-sub" id="s-finish-sub"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="sum-row">
+  <span class="sp g">Module 1: <b id="m1-wks">—</b></span>
+  <span class="sp p">Module 2: <b id="m2-wks">—</b></span>
+  <span class="sp a">Module 3: <b id="m3-wks">—</b></span>
+</div>
+
+<!-- Legend -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot ld-common"></div> Green stripe = foundational topic carried over from other domains</div>
+  <div class="legend-item"><div class="legend-dot ld-new"></div> No stripe = domain-specific topic</div>
+</div>
+
+<!-- Modules -->
+<div class="module m1" id="mod1">
+  <div class="mod-hdr">
+    <span class="mod-num">Module 01</span>
+    <span class="mod-title" id="m1-title">Python Programming</span>
+    <span class="mod-badge" id="m1-badge">CS50P · free</span>
+    <span class="mod-pace" id="m1-pace">~2 hrs / week</span>
+    <div class="mod-prog"><div class="mod-prog-track"><div class="mod-prog-fill" id="m1-bar" style="width:0%"></div></div><span class="mod-prog-txt" id="m1-txt">0 / 0 topics</span></div>
+  </div>
+  <div class="week-grid" id="grid1"></div>
+  <div class="milestone" id="m1-ms"><div class="milestone-icon">🎯</div><div></div></div>
+  <button class="guide-btn" onclick="toggleGuide('gp1',this)"><span id="gl1">📖 Module 1 guide</span><span class="g-arrow">▼</span></button>
+  <div class="guide-panel" id="gp1"></div>
+</div>
+
+<div class="module m2" id="mod2">
+  <div class="mod-hdr">
+    <span class="mod-num">Module 02</span>
+    <span class="mod-title" id="m2-title">Linear Algebra</span>
+    <span class="mod-badge" id="m2-badge">3Blue1Brown</span>
+    <span class="mod-pace" id="m2-pace">~2 hrs / week</span>
+    <div class="mod-prog"><div class="mod-prog-track"><div class="mod-prog-fill" id="m2-bar" style="width:0%"></div></div><span class="mod-prog-txt" id="m2-txt">0 / 0 topics</span></div>
+  </div>
+  <div class="week-grid" id="grid2"></div>
+  <div class="milestone" id="m2-ms"><div class="milestone-icon">🎯</div><div></div></div>
+  <button class="guide-btn" onclick="toggleGuide('gp2',this)"><span id="gl2">📖 Module 2 guide</span><span class="g-arrow">▼</span></button>
+  <div class="guide-panel" id="gp2"></div>
+</div>
+
+<div class="module m3" id="mod3">
+  <div class="mod-hdr">
+    <span class="mod-num">Module 03</span>
+    <span class="mod-title" id="m3-title">Probability & Statistics</span>
+    <span class="mod-badge" id="m3-badge">StatQuest</span>
+    <span class="mod-pace" id="m3-pace">~2 hrs / week</span>
+    <div class="mod-prog"><div class="mod-prog-track"><div class="mod-prog-fill" id="m3-bar" style="width:0%"></div></div><span class="mod-prog-txt" id="m3-txt">0 / 0 topics</span></div>
+  </div>
+  <div class="week-grid" id="grid3"></div>
+  <div class="milestone" id="m3-ms"><div class="milestone-icon">🏁</div><div></div></div>
+  <button class="guide-btn" onclick="toggleGuide('gp3',this)"><span id="gl3">📖 Module 3 guide</span><span class="g-arrow">▼</span></button>
+  <div class="guide-panel" id="gp3"></div>
+</div>
+
+<div class="sec-card" id="res-card">
+  <h2 id="res-title">All resources — everything is free</h2>
+  <div class="res-grid" id="res-grid"></div>
+</div>
+
+<div class="sec-card" style="margin-top:14px">
+  <h2>Rules that make the difference</h2>
+  <ul class="rules-list">
+    <li><span class="rn">1</span><div><strong>Consistency beats intensity.</strong> Two hours every week beats eight hours once a month. Programming and mathematics require repetition spaced over time to actually stick.</div></li>
+    <li><span class="rn">2</span><div><strong>Never copy-paste code.</strong> Always type examples yourself. The friction of typing forces your brain to slow down and process the syntax.</div></li>
+    <li><span class="rn">3</span><div><strong>Write things down by hand.</strong> Sketch diagrams on paper. Physical writing builds intuition that reading alone never does.</div></li>
+    <li><span class="rn">4</span><div><strong>Sit with confusion rather than skipping it.</strong> Every concept in Phase 1 is load-bearing. Something unclear in week 3 compounds into a wall in week 20.</div></li>
+    <li><span class="rn">5</span><div><strong>If you miss a week, just continue.</strong> Pick up exactly where you left off. Missing one week changes nothing over a multi-month timeline.</div></li>
+    <li><span class="rn">6</span><div><strong>Build things, don't just watch.</strong> The milestone projects are not optional extras — they are the proof that learning happened.</div></li>
+  </ul>
+</div>
+<button class="reset-btn" onclick="resetAll()">↺ Reset all progress</button>
+
+</div><!-- /wrap -->
+<script>
+/* ═══════════════════════════════════════════════
+   STABLE TOPIC LIBRARY
+   Topics with the same id are the SAME skill —
+   completing them in one domain carries over.
+═══════════════════════════════════════════════ */
+const T = {
+  /* Python core */
+  'py-setup':   {t:"Python setup",       s:"Install Python, VS Code, run Hello World"},
+  'py-vars':    {t:"Variables & types",  s:"int, str, float, bool, type()"},
+  'py-cond':    {t:"Conditionals",       s:"if / elif / else, comparison operators"},
+  'py-loops':   {t:"Loops",             s:"for, while, range(), break, continue"},
+  'py-funcs':   {t:"Functions",         s:"def, return, scope, default args"},
+  'py-lists':   {t:"Lists & tuples",    s:"indexing, slicing, list methods"},
+  'py-dicts':   {t:"Dicts & sets",      s:"key-value pairs, .get(), iteration"},
+  'py-fileio':  {t:"File I/O",          s:"open(), read, write, CSV files"},
+  'py-errors':  {t:"Error handling",    s:"try/except, raising exceptions"},
+  'py-modules': {t:"Modules & packages",s:"import, pip, your own module"},
+  /* NumPy */
+  'np-basics':  {t:"NumPy basics",      s:"arrays, shape, dtype, indexing"},
+  'np-ops':     {t:"NumPy operations",  s:"broadcasting, dot, reshape, axis"},
+  /* Visualisation */
+  'mpl':        {t:"Matplotlib",        s:"line, scatter, histogram, labels"},
+  'seaborn':    {t:"Seaborn",           s:"pairplot, heatmap, boxplot, FacetGrid"},
+  /* pandas */
+  'pd-basics':  {t:"Pandas basics",     s:"DataFrame, Series, read_csv, head, describe"},
+  'pd-index':   {t:"Indexing & slicing",s:"loc, iloc, boolean masking, query()"},
+  'pd-clean':   {t:"Missing data",      s:"isna(), fillna(), dropna(), interpolate()"},
+  'pd-string':  {t:"String operations", s:"str accessor, split, contains, extract"},
+  'pd-dt':      {t:"Datetime handling", s:"pd.to_datetime, dt accessor, resample"},
+  'pd-group':   {t:"GroupBy & agg.",    s:"groupby(), agg(), transform(), pivot_table"},
+  'pd-merge':   {t:"Merging data",      s:"merge(), concat(), join()"},
+  'pd-feature': {t:"Feature engineering",s:"Binning, log transform, ratio features"},
+  /* Linear algebra */
+  'la-vecs':    {t:"Vectors",           s:"Addition, scalar mult, geometric meaning"},
+  'la-dot':     {t:"Dot product",       s:"Geometric meaning, angle between vectors"},
+  'la-mats':    {t:"Matrices",          s:"Rows, cols, addition, transpose"},
+  'la-matmul':  {t:"Matrix multiplication",s:"Rules, dimensions, ML applications"},
+  'la-trans':   {t:"Linear transforms", s:"Matrices as transformations of space"},
+  'la-det':     {t:"Det. & inverse",    s:"Geometric meaning, np.linalg"},
+  'la-eigen':   {t:"Eigenvalues",       s:"Eigenvectors, PCA intuition"},
+  'la-nplinalg':{t:"NumPy lin. algebra",s:"np.dot, np.linalg, solving Ax=b"},
+  /* Calculus */
+  'calc-deriv': {t:"Derivatives",       s:"Slope, chain rule, partial derivatives"},
+  'calc-grad':  {t:"Gradient intuition",s:"Direction of steepest ascent"},
+  'calc-backprop':{t:"Backpropagation", s:"Computational graph, chain rule in networks"},
+  /* Probability & stats */
+  'prob-basics':{t:"Probability basics",s:"Events, sample space, P(A), P(A or B)"},
+  'prob-cond':  {t:"Conditional prob.", s:"P(A|B), independence, joint probability"},
+  'prob-bayes': {t:"Bayes' theorem",    s:"Formula, intuition, spam filter example"},
+  'prob-rv':    {t:"Random variables",  s:"Discrete vs continuous, PMF, PDF"},
+  'prob-dist':  {t:"Key distributions", s:"Bernoulli, Binomial, Gaussian"},
+  'prob-exp':   {t:"Expectation",       s:"Mean, variance, std dev from scratch"},
+  'stats-clt':  {t:"Central Limit Thm.",s:"Why it matters, simulation in Python"},
+  'stats-inf':  {t:"Statistical inference",s:"Hypothesis testing, p-values, CI"},
+  'stats-mle':  {t:"MLE",              s:"Maximum Likelihood Estimation"},
+  'info-theory':{t:"Information theory",s:"Entropy, cross-entropy, KL divergence"},
+  'stats-py':   {t:"Stats in Python",  s:"np.random, scipy.stats, sampling"},
+  /* SQL */
+  'sql-basics': {t:"SQL basics",        s:"SELECT, FROM, WHERE, ORDER BY, LIMIT"},
+  'sql-agg':    {t:"SQL aggregations",  s:"GROUP BY, HAVING, COUNT, SUM, AVG"},
+  'sql-joins':  {t:"SQL joins",         s:"INNER, LEFT, RIGHT, FULL outer"},
+  'sql-window': {t:"Window functions",  s:"ROW_NUMBER, LAG, LEAD, running totals"},
+  /* ML algorithms */
+  'ml-linreg':  {t:"Linear regression", s:"Cost function, gradient descent"},
+  'ml-reg':     {t:"Regularisation",    s:"L1 (Lasso), L2 (Ridge), overfitting"},
+  'ml-logreg':  {t:"Logistic regression",s:"Sigmoid, cross-entropy, decision boundary"},
+  'ml-eval':    {t:"Evaluation metrics",s:"Accuracy, precision, recall, F1, ROC-AUC"},
+  'ml-split':   {t:"Train/val/test",    s:"Bias-variance tradeoff, cross-validation"},
+  'ml-trees':   {t:"Decision trees",    s:"Gini impurity, entropy, splitting criteria"},
+  'ml-ensemble':{t:"Ensemble methods",  s:"Random forests, bagging, boosting, XGBoost"},
+  'ml-svm':     {t:"SVMs",             s:"Hyperplane, margin, kernel trick"},
+  'ml-dimred':  {t:"Dimensionality reduction",s:"PCA, t-SNE, UMAP"},
+  /* Deep learning */
+  'dl-tensors': {t:"PyTorch tensors",   s:"torch.Tensor, device, dtype, operations"},
+  'dl-autograd':{t:"Autograd",          s:"requires_grad, .backward(), .grad"},
+  'dl-module':  {t:"nn.Module",         s:"Layers, forward(), parameters()"},
+  'dl-optim':   {t:"Optimisers",        s:"SGD, Adam, learning rate schedulers"},
+  'dl-data':    {t:"Datasets & loaders",s:"Dataset, DataLoader, transforms, batching"},
+  'dl-loop':    {t:"Training loop",     s:"forward → loss → backward → step"},
+  'dl-activ':   {t:"Activation fns",    s:"Sigmoid, tanh, ReLU, GELU — properties"},
+  'dl-loss':    {t:"Loss functions",    s:"MSE, cross-entropy, softmax pairing"},
+  'dl-init':    {t:"Weight init",       s:"Xavier, He — why initialisation matters"},
+  'dl-cnn':     {t:"CNNs",             s:"Conv2d, pooling, receptive field"},
+  'dl-bn':      {t:"Batch normalisation",s:"Why it works, train vs eval mode"},
+  'dl-dropout': {t:"Dropout",           s:"Regularisation by random zeroing"},
+  'dl-transfer':{t:"Transfer learning", s:"Pretrained models, fine-tuning, freezing"},
+  /* Attention / Transformers */
+  'att-basic':  {t:"Attention mechanism",s:"Query, key, value, scaled dot-product"},
+  'att-mha':    {t:"Transformers",      s:"Multi-head attention, positional encoding"},
+  'att-bert':   {t:"BERT",             s:"Masked LM, fine-tuning, CLS token"},
+  /* NLP-specific */
+  'nlp-tokens': {t:"Text preprocessing",s:"Tokenisation, lowercasing, regex"},
+  'nlp-stops':  {t:"Stopwords & stemming",s:"NLTK, lemmatisation, stop words"},
+  'nlp-bow':    {t:"Bag of words",      s:"CountVectorizer, document-term matrix"},
+  'nlp-tfidf':  {t:"TF-IDF",           s:"Term frequency, inverse document frequency"},
+  'nlp-ngrams': {t:"n-grams",          s:"Unigrams, bigrams, language models"},
+  'nlp-spacy':  {t:"spaCy",            s:"nlp(), tokens, POS tags, dependency parse"},
+  'nlp-embed':  {t:"Word embeddings",   s:"Dense vectors, distributional hypothesis"},
+  'nlp-w2v':    {t:"Word2Vec",         s:"Skip-gram, CBOW, negative sampling"},
+  'nlp-tsne':   {t:"t-SNE / UMAP",     s:"Visualising high-dimensional embeddings"},
+  'nlp-rnn':    {t:"RNNs for text",     s:"Sequence modelling, hidden state"},
+  'nlp-lstm':   {t:"LSTMs",            s:"Gating mechanisms, memory cell"},
+  'nlp-hf':     {t:"Hugging Face",     s:"pipeline(), AutoTokenizer, AutoModel"},
+  'nlp-finetune':{t:"Fine-tuning BERT", s:"Classification head, learning rate, epochs"},
+  'nlp-gen':    {t:"Text generation",  s:"GPT-2, sampling strategies, temperature"},
+  'nlp-eval':   {t:"NLP evaluation",   s:"BLEU, ROUGE, BERTScore"},
+  'nlp-lora':   {t:"Efficient fine-tuning",s:"LoRA, adapters — parameter efficient"},
+  /* Computer Vision */
+  'cv-arrays':  {t:"Images as arrays",  s:"RGB channels, pixel values, shape (H,W,C)"},
+  'cv-load':    {t:"Image loading",     s:"PIL.Image, cv2.imread, imshow"},
+  'cv-colour':  {t:"Colour spaces",     s:"RGB, BGR, HSV, Grayscale"},
+  'cv-pixel':   {t:"Pixel operations",  s:"Brightness, contrast, normalisation"},
+  'cv-geo':     {t:"Geometric transforms",s:"Resize, crop, rotate, flip"},
+  'cv-filter':  {t:"Filtering & kernels",s:"Blur, sharpen, edge detection"},
+  'cv-edges':   {t:"Edge detection",    s:"Sobel, Canny — gradient-based"},
+  'cv-thresh':  {t:"Thresholding",      s:"Binary, Otsu, adaptive"},
+  'cv-morph':   {t:"Morphological ops", s:"Erosion, dilation, opening, closing"},
+  'cv-hog':     {t:"Feature descriptors",s:"HOG, SIFT intuition"},
+  'cv-conv2d':  {t:"Conv2d",           s:"Kernel, stride, padding, output size"},
+  'cv-pool':    {t:"Pooling layers",    s:"MaxPool, AvgPool, AdaptiveAvgPool"},
+  'cv-augment': {t:"Data augmentation", s:"RandomCrop, HorizontalFlip, ColorJitter"},
+  'cv-detect':  {t:"Object detection",  s:"YOLO, Faster R-CNN, IoU, mAP"},
+  'cv-seg':     {t:"Segmentation",      s:"U-Net, FCN, Mask R-CNN"},
+  'cv-vit':     {t:"Vision Transformers",s:"ViT architecture, patch embeddings"},
+  'cv-clip':    {t:"CLIP",             s:"Image-text alignment, zero-shot"},
+  'cv-gradio':  {t:"Gradio deployment", s:"Build a web demo in <10 lines of Python"},
+  /* Reinforcement Learning */
+  'rl-mdp':     {t:"MDPs",             s:"States, actions, rewards, transitions, γ"},
+  'rl-values':  {t:"Value functions",   s:"V(s), Q(s,a) — expected future reward"},
+  'rl-bellman': {t:"Bellman equations", s:"Recursive form, optimality"},
+  'rl-pi-eval': {t:"Policy evaluation", s:"Iterative computation of V"},
+  'rl-pi-iter': {t:"Policy iteration",  s:"Evaluation + improvement, convergence"},
+  'rl-mc':      {t:"Monte Carlo",       s:"Episode sampling, first-visit MC"},
+  'rl-td':      {t:"TD learning",       s:"TD(0), bootstrapping, bias-variance"},
+  'rl-sarsa':   {t:"SARSA",            s:"On-policy TD control"},
+  'rl-qlearn':  {t:"Q-learning",        s:"Off-policy TD control"},
+  'rl-fa':      {t:"Function approximation",s:"Why tabular methods fail at scale"},
+  'rl-dqn':     {t:"DQN",             s:"Experience replay, target network"},
+  'rl-pg':      {t:"Policy gradients",  s:"REINFORCE, baseline, theorem"},
+  'rl-ppo':     {t:"PPO",             s:"Clipped objective, trust region"},
+  'rl-sac':     {t:"SAC / TD3",        s:"Continuous action spaces"},
+  'rl-reward':  {t:"Reward shaping",    s:"Dense vs sparse, potential-based"},
+  'rl-rlhf':    {t:"RL for LLMs",      s:"RLHF, reward models, PPO for language"},
+};
+
+/* ═══════════════════════════════════════════════
+   DOMAIN CONFIGS — topics reference T[id]
+═══════════════════════════════════════════════ */
+const DOMAINS = {
+
+"AI General": {
+  subtitle:"Python · Linear Algebra · Probability & Statistics",
+  modules:[
+    {title:"Python Programming", badge:"CS50P on edX · free",
+     milestone:"Write a Python script from scratch that loads a CSV, computes statistics, and produces two plots — without looking anything up.",
+     guide:[
+       {label:"Weeks 1–5",title:"Python core",body:"Install Python from <a href='https://python.org' target='_blank'>python.org</a> and VS Code. Work through CS50P Lectures 0–3. Never copy-paste — type every example. Key concepts: variables and dynamic typing, if/elif/else conditionals, for and while loops, functions with def/return."},
+       {label:"Weeks 6–7",title:"Data structures",body:"Lists (ordered, mutable), tuples (ordered, immutable), dicts (key-value pairs), sets (unique items). Build a word-count program and a phonebook dict. These containers are the foundation of all data handling in Python."},
+       {label:"Weeks 8–10",title:"Practical skills",body:"<strong>File I/O:</strong> <code>open()</code>, read CSV with the <code>csv</code> module. <strong>Error handling:</strong> <code>try/except</code> for graceful failures. <strong>Modules:</strong> <code>import</code>, <code>pip install</code>, write your own module."},
+       {label:"Weeks 11–12",title:"NumPy",body:"NumPy replaces slow Python loops with fast vectorised operations. Master <code>.shape</code>, <code>.dtype</code>, indexing, broadcasting, <code>np.dot()</code>, and <code>.reshape()</code>. Broadcasting confuses most beginners — don't rush past it."},
+       {label:"Week 13–14",title:"Matplotlib + mini project",body:"Create line plots, scatter plots, and histograms. Always add axis labels and a title. Then download the <a href='https://archive.ics.uci.edu/dataset/53/iris' target='_blank'>Iris dataset</a> and build a complete analysis script without a tutorial."},
+     ],
+     topics:['py-setup','py-vars','py-cond','py-loops','py-funcs','py-lists','py-dicts','py-fileio','py-errors','py-modules','np-basics','np-ops','mpl','py-miniproject']},
+    {title:"Linear Algebra", badge:"3Blue1Brown + Khan Academy",
+     milestone:"Implement PCA from scratch using only NumPy. Reduce the Iris dataset to 2D and plot the result.",
+     guide:[
+       {label:"Week 15",title:"Vectors",body:"Watch 3Blue1Brown Episodes 1–2. A vector is a list of numbers but the geometric picture (an arrow in space) is what makes linear algebra intuitive. Every data point in ML is a vector."},
+       {label:"Week 16",title:"Dot product",body:"Watch Episode 9. Dot product = multiply element-wise then sum. Zero means perpendicular (unrelated). This is how neurons work: dot product of inputs with weights."},
+       {label:"Weeks 17–20",title:"Matrices, transforms, determinants",body:"A matrix is a transformation of space. Matrix multiplication = composing two transformations. The determinant measures volume scaling — zero means non-invertible. Use <code>np.linalg.det()</code>, <code>np.linalg.inv()</code>."},
+       {label:"Weeks 21–23",title:"Eigenvalues & PCA project",body:"Eigenvectors only get stretched, never rotated — the eigenvalue is the stretch factor. PCA finds eigenvectors of the covariance matrix: (1) centre data, (2) <code>np.cov()</code>, (3) <code>np.linalg.eig()</code>, (4) sort, (5) project, (6) plot."},
+     ],
+     topics:['la-vecs','la-dot','la-mats','la-matmul','la-trans','la-det','la-eigen','la-nplinalg','la-pca-project']},
+    {title:"Probability & Statistics", badge:"StatQuest + Think Stats",
+     milestone:"Phase 1 capstone: a complete Jupyter notebook with EDA, distributions, PCA, and written interpretations. Item #1 in your research portfolio.",
+     guide:[
+       {label:"Weeks 24–26",title:"Probability & Bayes",body:"Simulate coin flips with <code>np.random</code>. Conditional probability: P(A|B). Bayes' theorem: P(A|B) = P(B|A)·P(A)/P(B). Don't move on until you can derive it and apply it to the spam filter example."},
+       {label:"Weeks 27–30",title:"Distributions & CLT",body:"Bernoulli, Binomial, Gaussian (bell curve). Compute mean, variance, std from formula and with NumPy. Simulate the CLT: draw groups of 30 from a non-Gaussian distribution and watch the means become bell-shaped."},
+       {label:"Weeks 31–35",title:"Inference, MLE, information theory",body:"p-values and confidence intervals. MLE: minimising cross-entropy loss IS doing MLE — this connection is what separates someone who runs ML code from someone who understands it. Entropy, cross-entropy, KL divergence: implement all three from scratch."},
+       {label:"Week 36",title:"Phase 1 capstone",body:"Complete Jupyter notebook: load data, clean, descriptive statistics, histograms, scatter plots, PCA from scratch, polished visualisation, written interpretations in markdown cells."},
+     ],
+     topics:['prob-basics','prob-cond','prob-bayes','prob-rv','prob-dist','prob-exp','stats-clt','stats-inf','stats-mle','info-theory','stats-py','review-ai','capstone-ai']},
+  ],
+  resources:[
+    {topic:"Python",name:"CS50P — Harvard's Python course",url:"https://cs50.harvard.edu/python",label:"cs50.harvard.edu/python"},
+    {topic:"NumPy",name:"Official NumPy beginner's guide",url:"https://numpy.org/doc/stable/user/absolute_beginners.html",label:"numpy.org/docs"},
+    {topic:"Linear Algebra",name:"3Blue1Brown — Essence of Linear Algebra",url:"https://www.youtube.com/@3blue1brown",label:"YouTube @3blue1brown"},
+    {topic:"Practice",name:"Khan Academy — Linear Algebra",url:"https://www.khanacademy.org/math/linear-algebra",label:"khanacademy.org"},
+    {topic:"Probability",name:"StatQuest with Josh Starmer",url:"https://www.youtube.com/@statquest",label:"YouTube @statquest"},
+    {topic:"Stats via code",name:"Think Stats (2nd ed.) — free book",url:"https://greenteapress.com/wp/think-stats-2e/",label:"greenteapress.com"},
+    {topic:"Datasets",name:"UCI Machine Learning Repository",url:"https://archive.ics.uci.edu",label:"archive.ics.uci.edu"},
+    {topic:"Notebooks",name:"Jupyter — pip install jupyter",url:"https://jupyter.org",label:"jupyter.org"},
+  ]
+},
+
+"Machine Learning": {
+  subtitle:"Python · Math Foundations · ML Algorithms & scikit-learn",
+  modules:[
+    {title:"Python + Math Essentials", badge:"CS50P + 3Blue1Brown",
+     milestone:"Implement linear regression from scratch with gradient descent. Train on a real dataset and plot the loss curve — no scikit-learn.",
+     guide:[
+       {label:"Weeks 1–5",title:"Python & data tools",body:"Install Python, Jupyter, and <code>pip install numpy pandas matplotlib seaborn</code>. Master lists, dicts, and comprehensions — pandas is built on these patterns."},
+       {label:"Weeks 4–7",title:"NumPy & pandas",body:"NumPy for fast numerical operations. Pandas for data wrangling: <code>read_csv()</code>, <code>head()</code>, <code>describe()</code>, <code>loc</code>/<code>iloc</code>, <code>fillna()</code>, <code>groupby()</code>, <code>merge()</code>."},
+       {label:"Weeks 8–9",title:"Visualisation",body:"Matplotlib for custom plots (always add axis labels). Seaborn's <code>pairplot()</code> is the fastest way to understand feature relationships in a dataset."},
+       {label:"Weeks 10–12",title:"Derivatives & gradients",body:"The derivative tells you how fast a function changes. The gradient is the multivariable version — a vector pointing in the direction of steepest ascent. Gradient descent follows the negative gradient to minimise a loss function. This is how every ML model learns."},
+       {label:"Weeks 13–14",title:"Mini project",body:"Pick any Kaggle dataset. Perform complete EDA: load, check missing values, compute summary statistics, produce 4+ visualisations. Write a paragraph interpreting each plot."},
+     ],
+     topics:['py-setup','py-vars','py-cond','py-loops','py-funcs','np-basics','np-ops','pd-basics','pd-index','pd-clean','pd-group','pd-merge','mpl','ml-eda-project']},
+    {title:"Core ML Theory", badge:"Andrew Ng's ML Specialisation",
+     milestone:"Implement logistic regression from scratch with NumPy. Evaluate with accuracy, precision, recall, and ROC-AUC on a binary classification dataset.",
+     guide:[
+       {label:"Weeks 15–16",title:"Linear & logistic regression",body:"<strong>Linear:</strong> minimise MSE with gradient descent. Implement both closed-form (<code>np.linalg.solve()</code>) and gradient descent and verify they agree. <strong>Logistic:</strong> sigmoid maps output to (0,1). Cross-entropy loss is the natural companion."},
+       {label:"Weeks 17–18",title:"Evaluation & splits",body:"Train/validation/test split prevents overfitting. Bias (underfitting) vs variance (overfitting) pull in opposite directions. L1/L2 regularisation navigates between them."},
+       {label:"Weeks 19–21",title:"Tree-based methods",body:"Decision trees are interpretable but overfit. Random forests fix this with bagging. XGBoost wins most Kaggle tabular competitions. Tune <code>max_depth</code>, <code>n_estimators</code>, <code>learning_rate</code>."},
+       {label:"Weeks 22–23",title:"SVMs & dimensionality",body:"SVMs find the maximum-margin hyperplane. The RBF kernel handles non-linear data. PCA reduces dimensionality linearly; t-SNE and UMAP reveal non-linear cluster structure."},
+     ],
+     topics:['ml-linreg','ml-reg','ml-logreg','ml-eval','ml-split','ml-trees','ml-ensemble','ml-svm','ml-dimred']},
+    {title:"ML in Practice", badge:"scikit-learn + Kaggle",
+     milestone:"Phase 1 capstone: end-to-end ML pipeline — EDA, feature engineering, model training, cross-validated hyperparameter tuning, evaluation report. Submit to a Kaggle beginner competition.",
+     guide:[
+       {label:"Weeks 24–26",title:"scikit-learn & feature engineering",body:"scikit-learn's consistent API (<code>fit()</code>, <code>predict()</code>, <code>transform()</code>) makes switching algorithms trivial. <code>Pipeline</code> prevents data leakage. Feature engineering often matters more than algorithm choice."},
+       {label:"Weeks 27–28",title:"Validation & tuning",body:"k-fold cross-validation gives reliable generalisation estimates. <code>GridSearchCV</code> exhaustively searches hyperparameter space; <code>RandomizedSearchCV</code> is faster for large spaces. Always tune on validation, evaluate finally on test."},
+       {label:"Weeks 29–32",title:"Edge cases & clustering",body:"SHAP values explain individual predictions. For imbalanced data, use precision/recall/AUC and consider class weights. k-means clusters by minimising within-cluster variance. DBSCAN handles arbitrary shapes and noise."},
+       {label:"Weeks 33–36",title:"Capstone",body:"Pick a Kaggle beginner competition. Complete pipeline: EDA → features → baseline → tuning → submission. Write a retrospective: what worked, what surprised you, what you'd do differently."},
+     ],
+     topics:['ml-sklearn-api','ml-pipeline','pd-feature','ml-cv','ml-hyperparam','ml-shap','ml-imbalance','ml-cluster','ml-anomaly','ml-workflow','review-ml','capstone-ml']},
+  ],
+  resources:[
+    {topic:"Python",name:"CS50P — Harvard's Python course",url:"https://cs50.harvard.edu/python",label:"cs50.harvard.edu/python"},
+    {topic:"ML course",name:"Andrew Ng's ML Specialisation (Coursera)",url:"https://www.coursera.org/specializations/machine-learning-introduction",label:"coursera.org"},
+    {topic:"Linear Algebra",name:"3Blue1Brown — Essence of Linear Algebra",url:"https://www.youtube.com/@3blue1brown",label:"YouTube @3blue1brown"},
+    {topic:"Calculus",name:"3Blue1Brown — Essence of Calculus",url:"https://www.youtube.com/playlist?list=PLZHQObOWTQDMsr9K-rj53DwVRMYO3t5Yr",label:"YouTube @3blue1brown"},
+    {topic:"Probability",name:"StatQuest with Josh Starmer",url:"https://www.youtube.com/@statquest",label:"YouTube @statquest"},
+    {topic:"Scikit-learn",name:"Official scikit-learn user guide",url:"https://scikit-learn.org/stable/user_guide.html",label:"scikit-learn.org"},
+    {topic:"Practice",name:"Kaggle — datasets, competitions, notebooks",url:"https://kaggle.com",label:"kaggle.com"},
+    {topic:"Reference",name:"Hands-On ML with scikit-learn (free preview)",url:"https://github.com/ageron/handson-ml3",label:"github.com/ageron"},
+  ]
+},
+
+"Deep Learning": {
+  subtitle:"Python · Neural Networks from Scratch · PyTorch",
+  modules:[
+    {title:"Python + Backprop Foundations", badge:"CS50P + 3Blue1Brown",
+     milestone:"Implement a neural network from scratch in NumPy — one hidden layer, ReLU, trained with backpropagation on XOR. Plot the loss curve.",
+     guide:[
+       {label:"Weeks 1–4",title:"Python & NumPy",body:"DL rests on NumPy. Master <code>.shape</code>, broadcasting, <code>np.matmul()</code>, and <code>np.einsum()</code> — you'll see einsum constantly in transformer code. <code>pip install numpy matplotlib jupyter</code>."},
+       {label:"Weeks 5–7",title:"Linear algebra for DL",body:"A neural network layer is <code>output = activation(W @ x + b)</code>. Matrices ARE layers. Understanding matrix multiplication geometrically makes attention and convolutions intuitive rather than opaque."},
+       {label:"Weeks 8–10",title:"Calculus & backpropagation",body:"Backprop = chain rule on a computational graph. Work out gradients for a two-layer network on paper before writing code. Key insight: gradients flow backwards, multiplying local derivatives at each node."},
+       {label:"Weeks 11–14",title:"Activations, losses, init & NumPy NN",body:"ReLU avoids vanishing gradients. GELU is used in transformers. Cross-entropy pairs with softmax (they cancel cleanly in the gradient). He initialisation (<code>std = √(2/fan_in)</code>) prevents signals dying. Then build and train a NumPy NN on XOR — if it converges, you understand backprop."},
+     ],
+     topics:['py-setup','py-vars','py-loops','py-funcs','np-basics','np-ops','mpl','la-vecs','la-mats','la-matmul','calc-deriv','calc-grad','calc-backprop','dl-activ','dl-loss','dl-init','dl-numpy-net']},
+    {title:"PyTorch Fundamentals", badge:"fast.ai + official PyTorch docs",
+     milestone:"Train a CNN on CIFAR-10 in PyTorch. Reach >80% validation accuracy. Write the full training loop by hand — no trainer library.",
+     guide:[
+       {label:"Weeks 15–17",title:"PyTorch basics",body:"Tensors work like NumPy arrays but track gradients. <code>tensor.requires_grad_(True)</code> enables autograd. <code>.backward()</code> computes gradients; <code>.grad</code> stores them. Move to GPU with <code>.to('cuda')</code> — typically 10–50× faster for CNNs."},
+       {label:"Weeks 18–21",title:"Building models & CNNs",body:"<code>nn.Module</code> base class: define layers in <code>__init__</code>, forward pass in <code>forward()</code>. Training loop: forward → loss → <code>loss.backward()</code> → <code>optimizer.step()</code> → <code>optimizer.zero_grad()</code>. Conv2d scans a kernel over the input producing a feature map."},
+       {label:"Weeks 22–23",title:"Regularisation & transfer learning",body:"Dropout randomly zeros activations during training. Batch norm stabilises and allows higher learning rates. Transfer learning: load pretrained ResNet, replace final linear layer, freeze early layers, fine-tune with lr=1e-5."},
+     ],
+     topics:['dl-tensors','dl-autograd','dl-module','dl-optim','dl-data','dl-loop','dl-cnn','dl-bn','dl-dropout','dl-transfer']},
+    {title:"Modern Deep Learning", badge:"Andrej Karpathy's lectures",
+     milestone:"Phase 1 capstone: implement a character-level language model (makemore or nanoGPT), train on a text of your choice, generate samples, and write a short analysis.",
+     guide:[
+       {label:"Weeks 24–25",title:"RNNs & LSTMs",body:"RNNs process sequences token by token. Vanishing gradients make long-range dependencies hard. LSTMs fix this with forget/input/output gates. Watch Karpathy's 'Building makemore' series."},
+       {label:"Weeks 26–27",title:"Attention & transformers",body:"Attention: Q·K^T/√d determines how much each token attends to each other token. Multi-head attention runs multiple attention operations in parallel, each learning different relationships. Watch Karpathy's 'Let's build GPT'."},
+       {label:"Weeks 28–31",title:"Training stability & debugging",body:"Gradient clipping prevents exploding gradients. Learning rate warmup avoids early instability. At initialisation, classification loss should equal <code>log(num_classes)</code>. Monitor gradient norms and weight distributions."},
+       {label:"Weeks 32–36",title:"Papers & capstone",body:"Read 2 papers end to end. Budget 3–4 hours each. Then implement a character-level language model. Train on a text file of your choice. Analyse the training curve and generate samples."},
+     ],
+     topics:['nlp-rnn','nlp-lstm','att-basic','att-mha','nlp-gen','dl-train-stab','dl-debug','dl-exptrack','dl-paper-reading','dl-gen-models','review-dl','capstone-dl']},
+  ],
+  resources:[
+    {topic:"Python",name:"CS50P — Harvard's Python course",url:"https://cs50.harvard.edu/python",label:"cs50.harvard.edu/python"},
+    {topic:"Deep Learning",name:"fast.ai — Practical Deep Learning (free)",url:"https://course.fast.ai",label:"course.fast.ai"},
+    {topic:"From scratch",name:"Andrej Karpathy — Neural Networks: Zero to Hero",url:"https://www.youtube.com/@AndrejKarpathy",label:"YouTube @AndrejKarpathy"},
+    {topic:"PyTorch",name:"Official PyTorch tutorials",url:"https://pytorch.org/tutorials",label:"pytorch.org/tutorials"},
+    {topic:"Linear Algebra",name:"3Blue1Brown — Essence of Linear Algebra",url:"https://www.youtube.com/@3blue1brown",label:"YouTube @3blue1brown"},
+    {topic:"Math",name:"Mathematics for Machine Learning (free book)",url:"https://mml-book.github.io",label:"mml-book.github.io"},
+    {topic:"Papers",name:"Papers With Code — SOTA results + code",url:"https://paperswithcode.com",label:"paperswithcode.com"},
+    {topic:"Tracking",name:"Weights & Biases — experiment tracking (free tier)",url:"https://wandb.ai",label:"wandb.ai"},
+  ]
+},
+
+"NLP": {
+  subtitle:"Python · Text Processing · Transformers & Hugging Face",
+  modules:[
+    {title:"Python + Text Foundations", badge:"CS50P + NLTK Book",
+     milestone:"Build a spam classifier: TF-IDF features + logistic regression. Evaluate with precision, recall, and F1 on a held-out test set.",
+     guide:[
+       {label:"Weeks 1–3",title:"Python for text",body:"NLP is string manipulation at scale. Master Python's string methods, the <code>re</code> module for regex, and file I/O with <code>open(f, encoding='utf-8')</code>. These are the tools for every data cleaning task."},
+       {label:"Weeks 4–5",title:"Text preprocessing pipeline",body:"Standard steps: lowercase → remove punctuation → tokenise → remove stopwords → stem/lemmatise. Understand what you lose at each step — stop word removal discards 'not', which matters for sentiment. Always question each step."},
+       {label:"Weeks 6–8",title:"Text representations",body:"Bag of words: treat each document as word counts (order irrelevant). TF-IDF down-weights common words and up-weights rare, informative ones. TF-IDF + logistic regression is a strong baseline that beats neural models on many small-data tasks."},
+       {label:"Weeks 9–14",title:"Linguistics basics & mini project",body:"spaCy provides POS tagging and dependency parsing out of the box. Build a spam classifier on the SMS Spam Collection dataset. Try adding bigrams, tuning regularisation, comparing SVM. Document every experiment."},
+     ],
+     topics:['py-setup','py-vars','py-loops','py-funcs','py-fileio','py-errors','np-basics','nlp-tokens','nlp-stops','nlp-bow','nlp-tfidf','nlp-ngrams','nlp-spacy','nlp-spam-project']},
+    {title:"Word Embeddings & Neural NLP", badge:"Word2Vec + PyTorch",
+     milestone:"Train Word2Vec embeddings on a text corpus. Visualise with t-SNE and demonstrate semantic relationships: king − man + woman ≈ queen.",
+     guide:[
+       {label:"Weeks 15–16",title:"Word embeddings",body:"The distributional hypothesis: words appearing in similar contexts have similar meanings. Word2Vec: train a shallow network to predict surrounding words (skip-gram) or predict a word from context (CBOW). The hidden weights become the embeddings."},
+       {label:"Weeks 17–18",title:"Working with embeddings",body:"Train Word2Vec with gensim. Visualise with t-SNE (reduces 300-dimensional vectors to 2D while preserving neighbourhood structure). Test: king − man + woman ≈ queen."},
+       {label:"Weeks 19–23",title:"RNNs, LSTMs & classification",body:"RNNs process text token by token with a hidden state. LSTMs fix vanishing gradients with gating. Bidirectional LSTMs process both directions and concatenate — important when future context matters (NER, POS). Build a sentiment classifier on IMDB reviews."},
+     ],
+     topics:['nlp-embed','nlp-w2v','nlp-tsne','nlp-rnn','nlp-lstm','nlp-bidir','nlp-textclf','nlp-seqlabel','nlp-embed-project']},
+    {title:"Transformers & Modern NLP", badge:"Hugging Face + Papers",
+     milestone:"Phase 1 capstone: fine-tune a BERT-based model on a text classification task. Beat a TF-IDF baseline by a meaningful margin. Write a technical report.",
+     guide:[
+       {label:"Weeks 24–25",title:"Attention & transformers",body:"Each token computes a query (what I'm looking for). Every other token has a key (what I am) and a value (what I contain). Q·K^T similarity weights the values. Multi-head attention runs this in parallel with different projections — each head learns different linguistic relationships."},
+       {label:"Weeks 26–27",title:"BERT & Hugging Face",body:"BERT is pretrained on masked LM and next sentence prediction. Fine-tune by adding a classification head and training with lr ≈ 2e-5. The <code>[CLS]</code> token's final hidden state is typically the sentence representation. Hugging Face: <code>from transformers import AutoModelForSequenceClassification</code>."},
+       {label:"Weeks 28–35",title:"Generation, evaluation & LoRA",body:"GPT-class models predict the next token autoregressively. Temperature controls randomness. BLEU for translation, ROUGE for summarisation, BERTScore for semantic similarity. LoRA reduces trainable parameters by 10,000× by adding small low-rank matrices to frozen layers."},
+       {label:"Week 36",title:"Capstone",body:"Fine-tune a BERT model on a classification task of your choice. Compare against TF-IDF baseline. Write a technical report: dataset statistics, preprocessing decisions, model choice, training details, results, and error analysis."},
+     ],
+     topics:['att-basic','att-mha','att-bert','nlp-hf','nlp-tokenise-deep','nlp-finetune','nlp-gen','nlp-eval','nlp-tasks','nlp-lora','review-nlp','capstone-nlp']},
+  ],
+  resources:[
+    {topic:"Python",name:"CS50P — Harvard's Python course",url:"https://cs50.harvard.edu/python",label:"cs50.harvard.edu/python"},
+    {topic:"Classical NLP",name:"NLTK Book — free online",url:"https://www.nltk.org/book/",label:"nltk.org/book"},
+    {topic:"Industrial NLP",name:"spaCy — library + tutorials",url:"https://spacy.io/usage",label:"spacy.io"},
+    {topic:"Transformers",name:"Hugging Face — models, datasets, tutorials",url:"https://huggingface.co/learn",label:"huggingface.co/learn"},
+    {topic:"Deep Learning",name:"fast.ai — Practical Deep Learning (free)",url:"https://course.fast.ai",label:"course.fast.ai"},
+    {topic:"Embeddings",name:"gensim — Word2Vec, Doc2Vec",url:"https://radimrehurek.com/gensim/",label:"radimrehurek.com/gensim"},
+    {topic:"Papers",name:"Papers With Code — NLP SOTA",url:"https://paperswithcode.com/area/natural-language-processing",label:"paperswithcode.com/nlp"},
+    {topic:"Datasets",name:"Hugging Face Datasets Hub",url:"https://huggingface.co/datasets",label:"huggingface.co/datasets"},
+  ]
+},
+
+"Computer Vision": {
+  subtitle:"Python · Image Processing · CNNs & Vision Transformers",
+  modules:[
+    {title:"Python + Image Fundamentals", badge:"OpenCV + PIL",
+     milestone:"Build a digit classifier: HOG features + SVM on MNIST. Then compare against a simple CNN and document the accuracy and training-time difference.",
+     guide:[
+       {label:"Weeks 1–2",title:"Images as data",body:"A colour image is a 3D NumPy array (H, W, 3). Each pixel is three integers. <code>from PIL import Image; arr = np.array(Image.open('photo.jpg'))</code>. OpenCV uses BGR order by default — a common gotcha. Normalise to 0–1 (<code>arr / 255.0</code>) before any ML model."},
+       {label:"Weeks 3–5",title:"Image operations",body:"Geometric transforms are the basis of data augmentation: random flip, rotate, crop, resize. HSV separates colour (hue) from brightness — useful for colour-based thresholding. Grayscale reduces computation when colour isn't needed."},
+       {label:"Weeks 6–8",title:"Filtering & convolution",body:"A kernel slides over an image, computing a weighted sum at each position. Mean kernel = blur. Laplacian kernel = edge detection. Canny pipeline: Gaussian smooth → gradient magnitude → non-maximum suppression → hysteresis thresholding."},
+       {label:"Weeks 9–14",title:"HOG features & mini project",body:"HOG: divide image into cells, compute gradient histograms, concatenate. Highly effective for pedestrian detection. Build a digit classifier: HOG + SVM on MNIST, then compare against a CNN."},
+     ],
+     topics:['py-setup','py-vars','py-loops','py-funcs','np-basics','np-ops','mpl','cv-arrays','cv-load','cv-colour','cv-pixel','cv-geo','cv-filter','cv-edges','cv-thresh','cv-morph','cv-hog','cv-classical-project']},
+    {title:"CNNs & Deep Vision", badge:"PyTorch + torchvision",
+     milestone:"Train a ResNet on a custom image dataset (10+ classes, 500+ images/class) with transfer learning. Achieve >90% validation accuracy.",
+     guide:[
+       {label:"Weeks 15–16",title:"PyTorch for images",body:"torchvision provides pretrained models, standard datasets (CIFAR-10), and transforms. Images flow as tensors (batch, channels, H, W). Move to GPU with <code>.to('cuda')</code>."},
+       {label:"Weeks 17–19",title:"CNN architecture",body:"Conv2d: <code>nn.Conv2d(in_channels, out_channels, kernel_size)</code>. Output size: <code>(input − kernel + 2·padding)/stride + 1</code>. Stack Conv → BatchNorm → ReLU → Pool. Each block learns increasingly abstract features."},
+       {label:"Weeks 20–23",title:"Augmentation & transfer learning",body:"Standard augmentations: <code>RandomHorizontalFlip</code>, <code>RandomCrop</code>, <code>ColorJitter</code>. Transfer learning: load ResNet, replace <code>model.fc</code>, freeze early layers, fine-tune with lr=1e-5."},
+     ],
+     topics:['dl-tensors','dl-module','dl-loop','cv-conv2d','cv-pool','dl-bn','dl-dropout','cv-augment','dl-data','dl-transfer']},
+    {title:"Vision Transformers & Applied CV", badge:"Detectron2 + ViT",
+     milestone:"Phase 1 capstone: end-to-end CV system — curate a dataset, train (detection or segmentation), evaluate with appropriate metrics, deploy as a Gradio web demo.",
+     guide:[
+       {label:"Weeks 24–25",title:"Object detection",body:"YOLO processes the whole image in one pass — fast enough for real-time. Faster R-CNN uses a region proposal network — more accurate, slower. Key metric: mAP (mean Average Precision) over IoU thresholds."},
+       {label:"Weeks 26–27",title:"Segmentation",body:"U-Net: contracting path encodes context, expanding path (with skip connections) reconstructs spatial detail. Mask R-CNN adds a mask prediction head to Faster R-CNN for instance segmentation."},
+       {label:"Weeks 28–29",title:"Vision Transformers & CLIP",body:"ViT divides an image into 16×16 patches, embeds each patch, adds positional embeddings, runs a standard transformer. CLIP jointly trains image and text encoders — enabling zero-shot classification by comparing embeddings."},
+       {label:"Weeks 30–36",title:"Deployment & capstone",body:"Gradio: <code>gr.Interface(fn=predict, inputs='image', outputs='label').launch()</code>. For custom datasets: LabelImg for bounding boxes, LabelMe for masks. Build your end-to-end system, deploy it, and write a 1-page technical report."},
+     ],
+     topics:['cv-detect','cv-seg','cv-vit','cv-clip','cv-diffusion','cv-eval','cv-gradio','cv-dataset','cv-domain-adapt','review-cv','capstone-cv']},
+  ],
+  resources:[
+    {topic:"Python",name:"CS50P — Harvard's Python course",url:"https://cs50.harvard.edu/python",label:"cs50.harvard.edu/python"},
+    {topic:"Image processing",name:"OpenCV Python tutorials",url:"https://docs.opencv.org/4.x/d6/d00/tutorial_py_root.html",label:"opencv.org/tutorials"},
+    {topic:"Deep Learning",name:"fast.ai — Practical Deep Learning (free)",url:"https://course.fast.ai",label:"course.fast.ai"},
+    {topic:"PyTorch",name:"torchvision — models, transforms, datasets",url:"https://pytorch.org/vision/stable/index.html",label:"pytorch.org/vision"},
+    {topic:"Detection",name:"Ultralytics YOLO — docs + examples",url:"https://docs.ultralytics.com",label:"docs.ultralytics.com"},
+    {topic:"ViT & CLIP",name:"Hugging Face — vision models",url:"https://huggingface.co/models?pipeline_tag=image-classification",label:"huggingface.co/models"},
+    {topic:"Deployment",name:"Gradio — build ML demos in Python",url:"https://gradio.app",label:"gradio.app"},
+    {topic:"Papers",name:"Papers With Code — CV SOTA",url:"https://paperswithcode.com/area/computer-vision",label:"paperswithcode.com/cv"},
+  ]
+},
+
+"Reinforcement Learning": {
+  subtitle:"Python · Probability · MDPs & Deep RL Algorithms",
+  modules:[
+    {title:"Python + Probability Essentials", badge:"CS50P + StatQuest",
+     milestone:"Implement a multi-armed bandit solver (epsilon-greedy and UCB). Plot average reward over time on a 10-arm testbed and show UCB outperforms epsilon-greedy.",
+     guide:[
+       {label:"Weeks 1–3",title:"Python & probability",body:"RL is applied probability theory. Key concepts: expectation, Bayes' theorem (belief updating), and the Beta distribution (the natural prior for unknown probabilities — used in Thompson Sampling). <code>pip install numpy matplotlib gymnasium</code>."},
+       {label:"Weeks 4–6",title:"MDPs",body:"An MDP has: state (where you are), action (what you do), reward (immediate feedback), transition (where you end up). The Markov property: future depends only on current state, not history. Discount factor γ makes future rewards worth less."},
+       {label:"Weeks 7–9",title:"Value functions & Bellman",body:"V(s) = expected total discounted reward from state s acting optimally. Bellman equation: V*(s) = max_a [R(s,a) + γ · Σ P(s'|s,a) · V*(s')]. All RL algorithms, in some form, solve this recursion."},
+       {label:"Weeks 10–14",title:"Policy iteration & bandit project",body:"Policy evaluation: apply Bellman expectation until V converges. Policy improvement: be greedy w.r.t. V. Proven to converge to optimal policy. Then implement epsilon-greedy and UCB bandit solvers and compare on a 10-arm testbed."},
+     ],
+     topics:['py-setup','py-vars','py-loops','py-funcs','np-basics','np-ops','mpl','prob-basics','prob-cond','prob-bayes','prob-dist','rl-mdp','rl-values','rl-bellman','rl-pi-eval','rl-pi-iter','rl-bandit-project']},
+    {title:"Core RL Algorithms", badge:"Sutton & Barto (free book)",
+     milestone:"Implement Q-learning and SARSA from scratch. Solve FrozenLake and Taxi from Gymnasium. Plot learning curves and compare on-policy vs off-policy behaviour.",
+     guide:[
+       {label:"Weeks 15–16",title:"Monte Carlo & TD learning",body:"Monte Carlo: run a complete episode, update from actual returns. TD: update after every step by bootstrapping. TD has lower variance but higher bias. TD(λ) interpolates between the two."},
+       {label:"Weeks 17–18",title:"Q-learning & SARSA",body:"SARSA is on-policy: updates using the action actually taken. Q-learning is off-policy: always updates toward the greedy action. Q-learning learns the optimal policy directly, even while exploring."},
+       {label:"Weeks 19–23",title:"DQN & policy gradients",body:"DQN adds two tricks to Q-learning: experience replay (break temporal correlations) and a target network (stabilise learning). REINFORCE: run an episode, compute returns, update policy to increase probability of high-return actions. A baseline (V(s)) reduces variance dramatically."},
+     ],
+     topics:['rl-mc','rl-td','rl-sarsa','rl-qlearn','rl-fa','rl-dqn','rl-pg']},
+    {title:"Deep RL & Applications", badge:"Stable-Baselines3 + Papers",
+     milestone:"Phase 1 capstone: train a PPO agent to solve LunarLander or CarRacing. Document training curves, reward shaping decisions, and hyperparameter choices.",
+     guide:[
+       {label:"Weeks 24–25",title:"Actor-Critic & PPO",body:"Actor-Critic: actor = policy, critic = value function. Advantage A(s,a) = Q(s,a) − V(s) measures how much better action a is than average. PPO clips the policy update ratio to prevent catastrophically large steps — the most widely used algorithm in production RL."},
+       {label:"Weeks 26–27",title:"Reward engineering",body:"Sparse rewards are hard to learn from. Dense rewards make learning easier but can cause reward hacking. Potential-based shaping (Ng et al. 1999) guarantees not changing the optimal policy."},
+       {label:"Weeks 28–31",title:"Continuous control & RLHF",body:"SAC maximises reward plus entropy — encouraging exploration. RLHF: (1) train a reward model from human comparisons, (2) use PPO to optimise the policy against it with a KL penalty. Understanding RLHF is increasingly important as LLMs become the dominant RL application."},
+       {label:"Weeks 32–36",title:"Debugging & capstone",body:"Always compare against a random baseline. Monitor entropy (collapse to zero = stopped exploring). Log episode rewards with a running mean. Capstone: train PPO, document every hyperparameter choice and what happened when you changed it."},
+     ],
+     topics:['rl-ppo','rl-reward','rl-sac','rl-marl','rl-imitation','rl-model-based','rl-rlhf','rl-debug','review-rl','capstone-rl']},
+  ],
+  resources:[
+    {topic:"Python",name:"CS50P — Harvard's Python course",url:"https://cs50.harvard.edu/python",label:"cs50.harvard.edu/python"},
+    {topic:"RL textbook",name:"Sutton & Barto — Reinforcement Learning (free)",url:"http://incompleteideas.net/book/the-book.html",label:"incompleteideas.net"},
+    {topic:"RL course",name:"David Silver's RL course (DeepMind)",url:"https://www.davidsilver.uk/teaching/",label:"davidsilver.uk/teaching"},
+    {topic:"Environments",name:"Gymnasium — RL environments library",url:"https://gymnasium.farama.org",label:"gymnasium.farama.org"},
+    {topic:"Algorithms",name:"Stable-Baselines3 — PPO, SAC, A2C",url:"https://stable-baselines3.readthedocs.io",label:"stable-baselines3.rtfd.io"},
+    {topic:"Probability",name:"StatQuest with Josh Starmer",url:"https://www.youtube.com/@statquest",label:"YouTube @statquest"},
+    {topic:"Deep RL",name:"Spinning Up in Deep RL (OpenAI)",url:"https://spinningup.openai.com",label:"spinningup.openai.com"},
+    {topic:"Papers",name:"Papers With Code — RL SOTA",url:"https://paperswithcode.com/area/reinforcement-learning",label:"paperswithcode.com/rl"},
+  ]
+},
+
+"Data Science": {
+  subtitle:"Python · Statistics · SQL · Visualisation & Storytelling",
+  modules:[
+    {title:"Python + Data Tools", badge:"CS50P + pandas docs",
+     milestone:"Complete EDA on a real dataset: descriptive statistics, missing data patterns, 3 engineered features, and a polished dashboard with 6+ charts.",
+     guide:[
+       {label:"Weeks 1–4",title:"pandas — the core tool",body:"A DataFrame is a table; a Series is a column. <code>df.info()</code> shows types and missing counts. <code>df.describe()</code> gives summary stats. <code>loc</code> is label-based, <code>iloc</code> is position-based. Boolean masking: <code>df[df['col'] > 5]</code>."},
+       {label:"Weeks 5–7",title:"Data cleaning",body:"Understand why data is missing (MCAR, MAR, MNAR) before deciding how to handle it. Datetime: always convert with <code>pd.to_datetime()</code> — then use <code>.dt.month</code>, <code>.dt.dayofweek</code>, <code>resample('M')</code>. String operations: the <code>.str</code> accessor."},
+       {label:"Weeks 8–9",title:"GroupBy & aggregation",body:"<code>df.groupby('city')['revenue'].mean()</code>. <code>.agg()</code> for multiple functions. <code>pivot_table()</code> for cross-tabulations. <code>transform()</code> returns a Series the same length as the original — useful for group-level features."},
+       {label:"Weeks 10–14",title:"Feature engineering & visualisation",body:"Log transform skewed distributions. Create ratio and interaction features. Date features (day of week, is_weekend). Matplotlib for control; Seaborn for quick statistical plots; Plotly for interactive charts. Always label axes and state the takeaway in the chart title."},
+     ],
+     topics:['py-setup','py-vars','py-loops','py-funcs','np-basics','np-ops','pd-basics','pd-index','pd-clean','pd-string','pd-dt','pd-group','pd-merge','pd-feature','mpl','seaborn','plotly','ds-eda-project']},
+    {title:"Statistics & SQL", badge:"StatQuest + Mode Analytics",
+     milestone:"Write a complete SQL analysis of a multi-table database: cohort retention, top-10 products by revenue, anomalous days. Export to pandas and visualise.",
+     guide:[
+       {label:"Weeks 15–16",title:"Descriptive statistics",body:"Mean is sensitive to outliers; median is robust. Always check skewness before choosing which to report. Correlation: Pearson assumes normality; Spearman ranks data first. Most important lesson: correlation ≠ causation. Always visualise your data — Anscombe's quartet."},
+       {label:"Weeks 17–18",title:"Inference & A/B testing",body:"Determine sample size before running the test, not after. Significant result with tiny effect size = useless — always report effect size alongside p-value. Sequential testing inflates false positives — use fixed-horizon or Bayesian methods."},
+       {label:"Weeks 19–22",title:"SQL",body:"Learn in order: SELECT basics → WHERE → GROUP BY → JOINs → window functions. Window functions: <code>ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY date)</code> numbers each customer's orders. <code>LAG(revenue, 1)</code> gets the previous row's value — essential for growth rates."},
+       {label:"Week 23",title:"SQL project",body:"Use a free SQLite dataset. Write queries: top 10 customers by LTV, MoM revenue growth, churned customers (month 1 but not month 2), products above category average revenue. Export to pandas and visualise."},
+     ],
+     topics:['prob-dist','prob-exp','stats-clt','stats-inf','ml-eval','sql-basics','sql-agg','sql-joins','sql-window','ds-abtesting','ds-sql-project']},
+    {title:"ML for Data Scientists", badge:"scikit-learn + Streamlit",
+     milestone:"Phase 1 capstone: raw dataset → Streamlit dashboard with descriptive analytics, a predictive model, and actionable recommendations presented to a non-technical audience.",
+     guide:[
+       {label:"Weeks 24–26",title:"Machine learning for DS",body:"Data scientists prioritise interpretability and communicating results over raw performance. Start with logistic regression (interpretable coefficients) and Random Forest (handles non-linearity, gives feature importance). Always compare against a sensible baseline."},
+       {label:"Week 27",title:"Time series",body:"Never shuffle time series data — split chronologically. Decompose into trend, seasonality, and residual. Prophet handles seasonality and holidays automatically. Yesterday's value is often the best predictor of today's."},
+       {label:"Weeks 28–30",title:"Communication & storytelling",body:"Structure: (1) frame the business question, (2) show the evidence, (3) state the insight in plain English, (4) give a specific recommendation. Chart title = the takeaway ('Revenue grows 12% faster in West', not 'Revenue by Region')."},
+       {label:"Weeks 31–36",title:"Streamlit & capstone",body:"Streamlit: <code>st.write(df)</code>, <code>st.plotly_chart(fig)</code>, <code>st.slider('Year', 2020, 2024)</code>. Deploy free on Streamlit Community Cloud. Capstone: complete data project with EDA → insights → model → dashboard. Write a one-page executive summary for a non-technical decision-maker."},
+     ],
+     topics:['ml-linreg','ml-logreg','ml-trees','ml-ensemble','ml-eval','ml-split','ml-cluster','ds-timeseries','ds-communicate','ds-storytelling','ds-streamlit','review-ds','capstone-ds']},
+  ],
+  resources:[
+    {topic:"Python",name:"CS50P — Harvard's Python course",url:"https://cs50.harvard.edu/python",label:"cs50.harvard.edu/python"},
+    {topic:"pandas",name:"pandas — 10 minutes to pandas",url:"https://pandas.pydata.org/docs/user_guide/10min.html",label:"pandas.pydata.org"},
+    {topic:"Statistics",name:"StatQuest with Josh Starmer",url:"https://www.youtube.com/@statquest",label:"YouTube @statquest"},
+    {topic:"SQL",name:"Mode Analytics SQL Tutorial (free)",url:"https://mode.com/sql-tutorial/",label:"mode.com/sql-tutorial"},
+    {topic:"SQL practice",name:"SQLZoo — interactive SQL exercises",url:"https://sqlzoo.net",label:"sqlzoo.net"},
+    {topic:"Dashboards",name:"Streamlit — build data apps in Python",url:"https://streamlit.io",label:"streamlit.io"},
+    {topic:"Visualisation",name:"Plotly — interactive charts library",url:"https://plotly.com/python/",label:"plotly.com/python"},
+    {topic:"Data",name:"Kaggle — datasets, notebooks, competitions",url:"https://kaggle.com",label:"kaggle.com"},
+  ]
+}
+
+}; /* end DOMAINS */
+
+/* Build complete topic list for a domain (topics may be id strings OR inline {t,s,id} objects) */
+function domainTopics(domainKey) {
+  return DOMAINS[domainKey].modules.flatMap(m =>
+    m.topics.map(id => T[id] ? {...T[id], id} : {t:id, s:'', id})
+  );
+}
+
+/* ═══════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════ */
+const DONE_KEY  = 'ai_v4_done';
+const SETUP_KEY = 'ai_v4_setup';
+let done  = new Set(); // stores topic IDs
+let setup = {domain:'AI General', hours:null};
+try { done  = new Set(JSON.parse(localStorage.getItem(DONE_KEY)  || '[]')); } catch(e){}
+try { setup = {...setup, ...JSON.parse(localStorage.getItem(SETUP_KEY)||'{}')}; } catch(e){}
+if (!DOMAINS[setup.domain]) setup.domain = 'AI General';
+
+function saveDone()  { try{localStorage.setItem(DONE_KEY, JSON.stringify([...done]))}catch(e){} }
+function saveSetup() { try{localStorage.setItem(SETUP_KEY, JSON.stringify(setup))}catch(e){} }
+
+const HRS = {2:1,4:2,6:3,8:4,10:5,12:6,15:8};
+function ipg()  { return HRS[setup.hours]||1; }
+function ddata(){ return DOMAINS[setup.domain]; }
+
+function modTopics(mi) { return ddata().modules[mi].topics.map(id=>T[id]?{...T[id],id}:{t:id,s:'',id}); }
+function modWeeks(mi)  { return Math.ceil(modTopics(mi).length/ipg()); }
+function totalWeeks()  { return [0,1,2].reduce((a,mi)=>a+modWeeks(mi),0); }
+function totalTopics() { return [0,1,2].reduce((a,mi)=>a+modTopics(mi).length,0); }
+function modDone(mi)   { return modTopics(mi).filter(tp=>done.has(tp.id)).length; }
+function totalDone()   { return [0,1,2].reduce((a,mi)=>a+modDone(mi),0); }
+
+/* Is this topic ID "shared" (exists in T library, used by multiple domains)? */
+const SHARED_IDS = new Set(Object.keys(T));
+
+/* ═══════════════════════════════════════════════
+   RENDER GRIDS
+═══════════════════════════════════════════════ */
+function renderGrid(gridId, mi, weekOffset) {
+  const grid = document.getElementById(gridId);
+  grid.innerHTML = '';
+  const topics = modTopics(mi);
+  const pg = ipg();
+  const single = pg===1;
+  for (let i=0; i<topics.length; i+=pg) {
+    const grpTopics = topics.slice(i, i+pg);
+    const isDone    = grpTopics.every(tp=>done.has(tp.id));
+    const isPartial = !isDone && grpTopics.some(tp=>done.has(tp.id));
+    const isCommon  = grpTopics.some(tp=>SHARED_IDS.has(tp.id));
+    const wn = weekOffset + Math.floor(i/pg) + 1;
+
+    const card = document.createElement('div');
+    card.className = 'wcard'+(isDone?' done':isPartial?' partial':'')+(single?' single':'')+(isCommon?' is-common':'');
+
+    if (single) {
+      const tp = grpTopics[0];
+      card.innerHTML = `
+        <div class="wcard-top"><span class="wcard-week">Week ${wn}</span><div class="wcard-check">${isDone?'✓':''}</div></div>
+        <div class="wcard-title">${tp.t}</div>
+        <div class="wcard-sub">${tp.s}</div>
+        ${isCommon?'<div class="common-tag">foundational</div>':''}`;
+    } else {
+      const lis = grpTopics.map(tp=>`<li><strong>${tp.t}</strong><span>${tp.s}</span></li>`).join('');
+      card.innerHTML = `
+        <div class="wcard-top"><span class="wcard-week">Week ${wn} · ${grpTopics.length} topics</span><div class="wcard-check">${isDone?'✓':''}</div></div>
+        <ul class="wcard-topics">${lis}</ul>`;
+    }
+
+    card.addEventListener('click', ()=>{
+      if (isDone) grpTopics.forEach(tp=>done.delete(tp.id));
+      else        grpTopics.forEach(tp=>done.add(tp.id));
+      saveDone(); updateAll(false);
+    });
+    grid.appendChild(card);
+  }
+}
+
+function renderGuides() {
+  [0,1,2].forEach(mi=>{
+    const panel = document.getElementById('gp'+(mi+1));
+    panel.innerHTML = ddata().modules[mi].guide.map(s=>
+      `<div class="gsec"><div class="gsec-label">${s.label}</div><div class="gsec-title">${s.title}</div><div class="gsec-body"><p>${s.body}</p></div></div>`
+    ).join('');
+  });
+}
+
+function renderResources() {
+  document.getElementById('res-grid').innerHTML = ddata().resources.map(r=>
+    `<div class="ri"><div class="ri-top"><span class="ri-topic">${r.topic}</span><span class="free">FREE</span></div><div class="ri-name">${r.name}</div><a class="ri-link" href="${r.url}" target="_blank">${r.label} →</a></div>`
+  ).join('');
+}
+
+function renderModMeta() {
+  const mods = ddata().modules;
+  [0,1,2].forEach(mi=>{
+    const id = mi+1;
+    document.getElementById('m'+id+'-title').textContent = mods[mi].title;
+    document.getElementById('m'+id+'-badge').textContent = mods[mi].badge;
+    document.getElementById('gl'+id).textContent         = '📖 '+mods[mi].title+' guide';
+    document.getElementById('m'+id+'-ms').querySelector('div').innerHTML =
+      '<strong>Milestone:</strong> '+mods[mi].milestone;
+  });
+}
+
+function renderAllGrids() {
+  let off=0;
+  [0,1,2].forEach(mi=>{
+    renderGrid(['grid1','grid2','grid3'][mi], mi, off);
+    off+=modWeeks(mi);
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   STATS
+═══════════════════════════════════════════════ */
+function finishDate() {
+  const rem  = totalTopics() - totalDone();
+  const remW = Math.ceil(rem / ipg());
+  if (rem <= 0) return { date: 'Done! 🎉', sub: 'all topics complete' };
+  const d = new Date();
+  d.setDate(d.getDate() + remW * 7);
+  const dateStr = d.toLocaleDateString('en-US', {month:'short', year:'numeric'});
+  const wLabel  = remW === 1 ? '1 week left' : remW + ' weeks left';
+  return { date: dateStr, sub: wLabel };
+}
+
+function updateStats() {
+  const n=totalDone(), total=totalTopics(), hrs=setup.hours||2;
+  const pct=total>0?Math.round(n/total*100):0;
+  const tw=totalWeeks();
+  const circ=2*Math.PI*50;
+  document.getElementById('ring').setAttribute('stroke-dasharray',circ.toFixed(1));
+  document.getElementById('ring').setAttribute('stroke-dashoffset',(circ-circ*(n/total)).toFixed(1));
+  document.getElementById('r-pct').textContent  = pct+'%';
+  document.getElementById('r-done').textContent = n+' / '+total;
+  document.getElementById('s-weeks').textContent  = tw+' wks';
+  document.getElementById('s-hrs').textContent    = (n*hrs)+' hrs';
+  document.getElementById('s-left').textContent   = ((total-n)*hrs)+' hrs';
+  const fd = finishDate();
+  document.getElementById('s-finish').textContent     = fd.date;
+  document.getElementById('s-finish-sub').textContent = fd.sub;
+  document.getElementById('s-finish-lbl').textContent = setup.hours ? 'est. finish date' : 'est. finish (set hrs)';
+
+  [0,1,2].forEach(mi=>{
+    const md=modDone(mi), mt=modTopics(mi).length;
+    const id=['m1','m2','m3'][mi];
+    document.getElementById(id+'-bar').style.width  = (mt?Math.round(md/mt*100):0)+'%';
+    document.getElementById(id+'-txt').textContent  = md+' / '+mt+' topics';
+    document.getElementById(id+'-pace').textContent = setup.hours?'~'+setup.hours+' hrs / week':'~2 hrs / week';
+  });
+
+  ['m1-wks','m2-wks','m3-wks'].forEach((id,mi)=>{
+    const w=modWeeks(mi);
+    document.getElementById(id).textContent=w+' wk'+(w===1?'':'s');
+  });
+}
+
+function updateTitle() {
+  const d=setup.domain||'AI General';
+  document.getElementById('main-title').innerHTML = d+' <span>Foundations</span>';
+  document.title = 'Phase 1 — '+d+' Foundations';
+  document.getElementById('hdr-sub-text').textContent = ddata().subtitle;
+  const pill=document.getElementById('domain-pill');
+  pill.textContent=d; pill.classList.remove('hidden');
+}
+
+/* ═══════════════════════════════════════════════
+   CARRYOVER TOAST
+═══════════════════════════════════════════════ */
+function showCarryoverToast(carried) {
+  const toast=document.getElementById('carryover-toast');
+  const msg=document.getElementById('carryover-msg');
+  if (carried>0) {
+    msg.innerHTML = `<b>${carried} foundational topic${carried===1?'':'s'} carried over</b> from your previous domain — your progress on shared skills is preserved.`;
+    toast.classList.add('show');
+    setTimeout(()=>toast.classList.remove('show'), 5000);
+  } else {
+    toast.classList.remove('show');
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   FULL UPDATE
+═══════════════════════════════════════════════ */
+function updateAll(domainChanged, prevDoneCopy) {
+  if (domainChanged) {
+    // Count how many done IDs exist in the new domain
+    const newIds = new Set(domainTopics(setup.domain).map(tp=>tp.id));
+    const carried = prevDoneCopy ? [...prevDoneCopy].filter(id=>newIds.has(id)).length : 0;
+    // Keep only IDs that exist in the new domain
+    const keepIds = [...done].filter(id=>newIds.has(id));
+    done = new Set(keepIds);
+    saveDone();
+    showCarryoverToast(carried);
+    document.querySelectorAll('.guide-panel.open').forEach(p=>p.classList.remove('open'));
+    document.querySelectorAll('.guide-btn.open').forEach(b=>b.classList.remove('open'));
+    document.querySelectorAll('.module').forEach(m=>{
+      m.classList.remove('domain-flash'); void m.offsetWidth; m.classList.add('domain-flash');
+    });
+  }
+  updateTitle();
+  renderModMeta();
+  renderAllGrids();
+  renderGuides();
+  renderResources();
+  updateStats();
+}
+
+/* ═══════════════════════════════════════════════
+   DOMAIN DESCRIPTIONS
+═══════════════════════════════════════════════ */
+const DOMAIN_DESC = {
+  "AI General": {
+    label:"What you'll build toward",
+    text:"A broad foundation across all of AI — Python, mathematics, and statistics that apply universally. Ideal if you want to explore multiple sub-fields before committing to a specialisation, or if your goal is AI research rather than a specific application area."
+  },
+  "Machine Learning": {
+    label:"What you'll build toward",
+    text:"The ability to take a raw dataset, clean it, engineer features, train and evaluate supervised models, and deploy a working prediction pipeline. You'll understand why algorithms work, not just how to call them — covering everything from linear regression to gradient-boosted trees."
+  },
+  "Deep Learning": {
+    label:"What you'll build toward",
+    text:"A ground-up understanding of neural networks — from implementing backpropagation in NumPy to training CNNs and transformers in PyTorch. By the end you'll be able to read ML papers, replicate results, and build a character-level language model from scratch."
+  },
+  "NLP": {
+    label:"What you'll build toward",
+    text:"The full NLP stack — from classical text preprocessing and TF-IDF classifiers, through word embeddings and LSTMs, up to fine-tuning BERT with Hugging Face. You'll finish with the skills to build and deploy a state-of-the-art text classification system on any language task."
+  },
+  "Computer Vision": {
+    label:"What you'll build toward",
+    text:"From treating images as NumPy arrays and writing convolution kernels by hand, to training ResNets and Vision Transformers on custom datasets. You'll understand how pixels become predictions, and finish with a deployed Gradio demo of a real CV system you built."
+  },
+  "Reinforcement Learning": {
+    label:"What you'll build toward",
+    text:"A rigorous understanding of how agents learn from interaction — from multi-armed bandits and tabular Q-learning, through Deep Q-Networks and policy gradients, to training PPO agents on real environments. You'll also understand RLHF, the technique behind modern LLM alignment."
+  },
+  "Data Science": {
+    label:"What you'll build toward",
+    text:"End-to-end data fluency — pandas wrangling, SQL queries across multi-table databases, statistical inference, A/B testing, and predictive modelling — packaged into a Streamlit dashboard and presented to a non-technical audience. The full workflow from raw data to actionable insight."
+  }
+};
+
+function updateDomainDesc() {
+  const d = setup.domain;
+  const box = document.getElementById('domain-desc');
+  if (!d || !DOMAIN_DESC[d]) { box.classList.remove('show'); return; }
+  document.getElementById('desc-label').textContent = DOMAIN_DESC[d].label;
+  document.getElementById('desc-text').textContent  = DOMAIN_DESC[d].text;
+  box.classList.remove('show');
+  void box.offsetWidth; // re-trigger animation
+  box.classList.add('show');
+}
+
+/* ═══════════════════════════════════════════════
+   CHIPS
+═══════════════════════════════════════════════ */
+document.querySelectorAll('#domain-chips .chip').forEach(c=>{
+  if (c.dataset.d===setup.domain) c.classList.add('active-d');
+  c.addEventListener('click',()=>{
+    if (c.dataset.d===setup.domain) return;
+    const prevDone = new Set(done);
+    document.querySelectorAll('#domain-chips .chip').forEach(x=>x.classList.remove('active-d'));
+    c.classList.add('active-d');
+    setup.domain=c.dataset.d; saveSetup();
+    updateDomainDesc();
+    updateAll(true, prevDone);
+  });
+});
+
+document.querySelectorAll('#hours-chips .chip').forEach(c=>{
+  if (String(c.dataset.h)===String(setup.hours)) c.classList.add('active-h');
+  c.addEventListener('click',()=>{
+    document.querySelectorAll('#hours-chips .chip').forEach(x=>x.classList.remove('active-h'));
+    c.classList.add('active-h');
+    setup.hours=parseInt(c.dataset.h,10); saveSetup();
+    updateAll(false);
+  });
+});
+
+/* ═══════════════════════════════════════════════
+   GUIDE TOGGLE / RESET
+═══════════════════════════════════════════════ */
+function toggleGuide(id,btn){
+  const p=document.getElementById(id);
+  const open=p.classList.toggle('open');
+  btn.classList.toggle('open',open);
+}
+function resetAll(){
+  if(!confirm('Reset all progress? This cannot be undone.')) return;
+  done.clear(); saveDone(); updateAll(false);
+}
+
+/* ═══ INIT ═══ */
+updateDomainDesc();
+updateAll(false);
+</script>
+</body>
+</html>
